@@ -17,10 +17,10 @@ const geistMono = Geist_Mono({
 })
 
 export const metadata = {
-  title: "TypeRace Pro - Master Your Typing Speed",
+  title: "TypeRace Pro - Domina tu Velocidad de Escritura",
   description:
-    "Compete, improve, and master your typing skills with real-time races, achievements, and global rankings.",
-    generator: 'v0.app'
+    "Compite, mejora y domina tus habilidades de mecanografía con carreras en tiempo real, logros y clasificaciones globales.",
+  generator: "v0.app",
 }
 
 export default function RootLayout({
@@ -29,7 +29,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="es" suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased`}>
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
           <LanguageProvider>

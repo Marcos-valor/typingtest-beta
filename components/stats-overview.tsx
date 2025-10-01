@@ -14,7 +14,7 @@ export function StatsOverview() {
     return (
       <Card>
         <CardContent className="p-6 text-center">
-          <p className="text-muted-foreground">Sign in to track your progress and compete with others!</p>
+          <p className="text-muted-foreground">{t("stats.signInPrompt")}</p>
         </CardContent>
       </Card>
     )
@@ -26,52 +26,52 @@ export function StatsOverview() {
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Best WPM</CardTitle>
+          <CardTitle className="text-sm font-medium">{t("stats.bestWpm")}</CardTitle>
           <Zap className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold text-primary">{stats.bestWpm}</div>
-          <p className="text-xs text-muted-foreground">Personal record</p>
+          <p className="text-xs text-muted-foreground">{t("stats.personalRecord")}</p>
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Average WPM</CardTitle>
+          <CardTitle className="text-sm font-medium">{t("stats.averageWpm")}</CardTitle>
           <TrendingUp className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold text-blue-600">{stats.averageWpm}</div>
-          <p className="text-xs text-muted-foreground">Across all races</p>
+          <p className="text-xs text-muted-foreground">{t("stats.acrossAllRaces")}</p>
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Accuracy</CardTitle>
+          <CardTitle className="text-sm font-medium">{t("stats.accuracy")}</CardTitle>
           <Target className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold text-green-600">{stats.accuracy}%</div>
-          <p className="text-xs text-muted-foreground">Best accuracy</p>
+          <p className="text-xs text-muted-foreground">{t("stats.bestAccuracy")}</p>
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Total Races</CardTitle>
+          <CardTitle className="text-sm font-medium">{t("stats.totalRaces")}</CardTitle>
           <Trophy className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold text-purple-600">{stats.totalRaces}</div>
-          <p className="text-xs text-muted-foreground">Completed</p>
+          <p className="text-xs text-muted-foreground">{t("stats.completed")}</p>
         </CardContent>
       </Card>
 
       {achievements.length > 0 && (
         <Card className="md:col-span-2 lg:col-span-4">
           <CardHeader>
-            <CardTitle className="text-sm font-medium">Recent Achievements</CardTitle>
+            <CardTitle className="text-sm font-medium">{t("stats.recentAchievements")}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex flex-wrap gap-2">

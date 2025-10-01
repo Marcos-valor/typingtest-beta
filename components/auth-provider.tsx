@@ -39,6 +39,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
+    // Cargar usuario guardado del localStorage
     const savedUser = localStorage.getItem("current_user")
     if (savedUser) {
       setUser(JSON.parse(savedUser))
@@ -53,8 +54,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     let userData: User
 
     if (savedUserData) {
+      // Cargar datos existentes del usuario
       userData = JSON.parse(savedUserData)
     } else {
+      // Crear nuevo usuario
       userData = {
         id: userId,
         name,
@@ -141,7 +144,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 export function useAuth() {
   const context = useContext(AuthContext)
   if (context === undefined) {
-    throw new Error("useAuth must be used within an AuthProvider")
+    throw new Error("useAuth debe usarse dentro de un AuthProvider")
   }
   return context
 }

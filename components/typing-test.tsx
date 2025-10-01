@@ -14,14 +14,14 @@ export function TypingTest() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Typing Challenge</CardTitle>
+        <CardTitle>{t("test.title")}</CardTitle>
       </CardHeader>
       <CardContent>
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="standard" className="flex items-center space-x-2">
               <Timer className="h-4 w-4" />
-              <span>Standard Test</span>
+              <span>{t("test.standardTest")}</span>
             </TabsTrigger>
             <TabsTrigger value="ghost" className="flex items-center space-x-2">
               <Ghost className="h-4 w-4" />

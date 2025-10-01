@@ -13,11 +13,21 @@ import {
 import { useLanguage } from "@/components/language-provider"
 import { useAuth } from "@/components/auth-provider"
 import { Moon, Sun, Globe, Trophy, User, Settings, LogOut, Keyboard, Loader2, BarChart3 } from "lucide-react"
+import { useToast } from "@/hooks/use-toast"
 
 export function Navigation() {
   const { theme, setTheme } = useTheme()
   const { language, setLanguage, t } = useLanguage()
   const { user, login, logout, isLoading } = useAuth()
+  const { toast } = useToast()
+
+  const handleGoogleSignIn = () => {
+    toast({
+      title: t("auth.comingSoon"),
+      description: "La autenticación con Google estará disponible pronto.",
+      duration: 3000,
+    })
+  }
 
   return (
     <nav className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-50">
@@ -52,13 +62,13 @@ export function Navigation() {
         </div>
 
         <div className="flex items-center space-x-2">
-          {/* Theme Toggle */}
+          {/* Cambio de Tema */}
           <Button variant="ghost" size="sm" onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>
             <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
             <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
           </Button>
 
-          {/* Language Toggle */}
+          {/* Cambio de Idioma */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="sm">
@@ -66,12 +76,12 @@ export function Navigation() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
-              <DropdownMenuItem onClick={() => setLanguage("en")}>English</DropdownMenuItem>
               <DropdownMenuItem onClick={() => setLanguage("es")}>Español</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setLanguage("en")}>English</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
 
-          {/* User Menu */}
+          {/* Menú de Usuario */}
           {isLoading ? (
             <Button variant="ghost" size="sm" disabled>
               <Loader2 className="h-4 w-4 animate-spin" />
@@ -126,7 +136,7 @@ export function Navigation() {
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            <Button onClick={login} size="sm">
+            <Button onClick={handleGoogleSignIn} size="sm">
               {t("auth.login")}
             </Button>
           )}
