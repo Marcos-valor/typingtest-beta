@@ -48,35 +48,7 @@ const sampleTexts = {
 }
 
 // Datos de fantasmas simulados - en una app real vendrían de la base de datos
-const mockGhosts: GhostData[] = [
-  {
-    id: "1",
-    name: "DemonioVeloz",
-    avatar: "/placeholder.svg",
-    wpm: 95,
-    accuracy: 98,
-    totalTime: 60,
-    keystrokes: [],
-  },
-  {
-    id: "2",
-    name: "MaestroTeclas",
-    avatar: "/placeholder.svg",
-    wpm: 87,
-    accuracy: 99,
-    totalTime: 60,
-    keystrokes: [],
-  },
-  {
-    id: "3",
-    name: "NinjaTeclado",
-    avatar: "/placeholder.svg",
-    wpm: 82,
-    accuracy: 96,
-    totalTime: 60,
-    keystrokes: [],
-  },
-]
+const mockGhosts: GhostData[] = []
 
 export function GhostRaceMode() {
   const { t, language } = useLanguage()
@@ -324,41 +296,49 @@ export function GhostRaceMode() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {mockGhosts.map((ghost) => (
-              <Card
-                key={ghost.id}
-                className={`cursor-pointer transition-all hover:shadow-md ${
-                  selectedGhost?.id === ghost.id ? "ring-2 ring-primary bg-primary/5" : ""
-                }`}
-                onClick={() => setSelectedGhost(ghost)}
-              >
-                <CardContent className="p-4">
-                  <div className="flex items-center space-x-3">
-                    <Avatar className="h-10 w-10">
-                      <AvatarImage src={ghost.avatar || "/placeholder.svg"} alt={ghost.name} />
-                      <AvatarFallback>{ghost.name.charAt(0)}</AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1">
-                      <div className="font-semibold">{ghost.name}</div>
-                      <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-                        <span>{ghost.wpm} PPM</span>
-                        <span>•</span>
-                        <span>
-                          {ghost.accuracy}% {t("test.accuracy")}
-                        </span>
+          {mockGhosts.length === 0 ? (
+            <div className="text-center py-12">
+              <Ghost className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+              <h3 className="text-lg font-semibold mb-2">{t("ghost.noGhostsYet")}</h3>
+              <p className="text-sm text-muted-foreground max-w-md mx-auto">{t("ghost.noGhostsDescription")}</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {mockGhosts.map((ghost) => (
+                <Card
+                  key={ghost.id}
+                  className={`cursor-pointer transition-all hover:shadow-md ${
+                    selectedGhost?.id === ghost.id ? "ring-2 ring-primary bg-primary/5" : ""
+                  }`}
+                  onClick={() => setSelectedGhost(ghost)}
+                >
+                  <CardContent className="p-4">
+                    <div className="flex items-center space-x-3">
+                      <Avatar className="h-10 w-10">
+                        <AvatarImage src={ghost.avatar || "/placeholder.svg"} alt={ghost.name} />
+                        <AvatarFallback>{ghost.name.charAt(0)}</AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1">
+                        <div className="font-semibold">{ghost.name}</div>
+                        <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+                          <span>{ghost.wpm} PPM</span>
+                          <span>•</span>
+                          <span>
+                            {ghost.accuracy}% {t("test.accuracy")}
+                          </span>
+                        </div>
                       </div>
+                      {selectedGhost?.id === ghost.id && (
+                        <Badge variant="default" className="ml-2">
+                          {t("ghost.selected")}
+                        </Badge>
+                      )}
                     </div>
-                    {selectedGhost?.id === ghost.id && (
-                      <Badge variant="default" className="ml-2">
-                        {t("ghost.selected")}
-                      </Badge>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
         </CardContent>
       </Card>
 

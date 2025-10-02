@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
@@ -9,30 +10,83 @@ import { HeatmapChart } from "@/components/heatmap-chart"
 import { ComparisonChart } from "@/components/comparison-chart"
 import { useLanguage } from "@/components/language-provider"
 import { TrendingUp, Target, Clock, Award, Calendar, BarChart3 } from "lucide-react"
+import { getUserStats, getUserTestResults } from "@/lib/user-tracking"
 
 export default function StatsPage() {
   const { t } = useLanguage()
 
-  // Mock data - en una app real vendría de la base de datos
-  const stats = {
-    totalTests: 247,
-    averageWPM: 68,
-    bestWPM: 89,
-    averageAccuracy: 94.2,
-    bestAccuracy: 98.7,
-    totalTimeTyped: 1847, // minutos
-    streak: 12,
-    rank: 1247,
-    percentile: 78,
-  }
+  const [stats, setStats] = useState({
+    totalTests: 0,
+    averageWPM: 0,
+    bestWPM: 0,
+    averageAccuracy: 0,
+    bestAccuracy: 0,
+    totalTimeTyped: 0,
+    streak: 0,
+    rank: 0,
+    percentile: 0,
+  })
 
-  const recentTests = [
-    { date: "2024-01-15", wpm: 72, accuracy: 96.2, duration: 60 },
-    { date: "2024-01-14", wpm: 68, accuracy: 94.8, duration: 180 },
-    { date: "2024-01-13", wpm: 71, accuracy: 95.1, duration: 300 },
-    { date: "2024-01-12", wpm: 65, accuracy: 93.7, duration: 60 },
-    { date: "2024-01-11", wpm: 69, accuracy: 95.8, duration: 180 },
-  ]
+  const [recentTests, setRecentTests] = useState<
+    Array<{
+      date: string
+      wpm: number
+      accuracy: number
+      duration: number
+    }>
+  >([])
+
+  useEffect(() => {
+    // Load real user statistics
+    const userStats = getUserStats()
+    const userTests = getUserTestResults()
+
+    setStats({
+      totalTests: userStats.totalTests,
+      averageWPM: userStats.averageWpm,
+      bestWPM: userStats.bestWpm,
+      averageAccuracy: userStats.averageAccuracy,
+      bestAccuracy: userStats.bestAccuracy,
+      totalTimeTyped: userStats.totalTimeTyped,
+      streak: 0, // TODO: Calculate streak
+      rank: 0, // TODO: Calculate rank
+      percentile: 0, // TODO: Calculate percentile
+    })
+
+    // Get last 5 tests
+    const recent = userTests
+      .sort((a, b) => b.timestamp - a.timestamp)
+      .slice(0, 5)
+      .map((test) => ({
+        date: new Date(test.timestamp).toISOString().split("T")[0],
+        wpm: test.wpm,
+        accuracy: test.accuracy,
+        duration: test.duration,
+      }))
+
+    setRecentTests(recent)
+  }, [])
+
+  if (stats.totalTests === 0) {
+    return (
+      <div className="container mx-auto px-4 py-8 space-y-8">
+        <div className="text-center space-y-2">
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+            {t("statistics")}
+          </h1>
+          <p className="text-muted-foreground text-lg">{t("trackYourProgress")}</p>
+        </div>
+
+        <Card className="max-w-2xl mx-auto">
+          <CardContent className="p-12 text-center">
+            <BarChart3 className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+            <h2 className="text-2xl font-bold mb-2">{t("stats.noTestsYet")}</h2>
+            <p className="text-muted-foreground">{t("stats.startTyping")}</p>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
 
   return (
     <div className="container mx-auto px-4 py-8 space-y-8">
@@ -78,7 +132,7 @@ export default function StatsPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-purple-900 dark:text-purple-100">
-              {Math.floor(stats.totalTimeTyped / 60)}h {stats.totalTimeTyped % 60}m
+              {Math.floor(stats.totalTimeTyped / 60)}h {Math.floor(stats.totalTimeTyped % 60)}m
             </div>
             <p className="text-xs text-purple-600 dark:text-purple-400">
               {stats.totalTests} {t("testsCompleted")}
@@ -89,15 +143,13 @@ export default function StatsPage() {
         <Card className="bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-950 dark:to-orange-900 border-orange-200 dark:border-orange-800">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-orange-700 dark:text-orange-300">
-              {t("globalRank")}
+              {t("stats.totalRaces")}
             </CardTitle>
             <Award className="h-4 w-4 text-orange-600 dark:text-orange-400" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-orange-900 dark:text-orange-100">#{stats.rank}</div>
-            <p className="text-xs text-orange-600 dark:text-orange-400">
-              {t("top")} {stats.percentile}%
-            </p>
+            <div className="text-2xl font-bold text-orange-900 dark:text-orange-100">{stats.totalTests}</div>
+            <p className="text-xs text-orange-600 dark:text-orange-400">{t("stats.completed")}</p>
           </CardContent>
         </Card>
       </div>
@@ -173,36 +225,38 @@ export default function StatsPage() {
       </Tabs>
 
       {/* Recent Tests */}
-      <Card>
-        <CardHeader>
-          <CardTitle>{t("recentTests")}</CardTitle>
-          <CardDescription>{t("recentTestsDescription")}</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {recentTests.map((test, index) => (
-              <div key={index} className="flex items-center justify-between p-4 rounded-lg bg-muted/50">
-                <div className="flex items-center gap-4">
-                  <div className="text-sm text-muted-foreground">{new Date(test.date).toLocaleDateString()}</div>
-                  <Badge variant="secondary">
-                    {test.duration === 60 ? "1min" : test.duration === 180 ? "3min" : "5min"}
-                  </Badge>
-                </div>
-                <div className="flex items-center gap-6">
-                  <div className="text-center">
-                    <div className="text-lg font-semibold">{test.wpm}</div>
-                    <div className="text-xs text-muted-foreground">WPM</div>
+      {recentTests.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>{t("recentTests")}</CardTitle>
+            <CardDescription>{t("recentTestsDescription")}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {recentTests.map((test, index) => (
+                <div key={index} className="flex items-center justify-between p-4 rounded-lg bg-muted/50">
+                  <div className="flex items-center gap-4">
+                    <div className="text-sm text-muted-foreground">{new Date(test.date).toLocaleDateString()}</div>
+                    <Badge variant="secondary">
+                      {test.duration === 60 ? "1min" : test.duration === 180 ? "3min" : "5min"}
+                    </Badge>
                   </div>
-                  <div className="text-center">
-                    <div className="text-lg font-semibold">{test.accuracy}%</div>
-                    <div className="text-xs text-muted-foreground">{t("accuracy")}</div>
+                  <div className="flex items-center gap-6">
+                    <div className="text-center">
+                      <div className="text-lg font-semibold">{test.wpm}</div>
+                      <div className="text-xs text-muted-foreground">WPM</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-lg font-semibold">{test.accuracy}%</div>
+                      <div className="text-xs text-muted-foreground">{t("accuracy")}</div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   )
 }

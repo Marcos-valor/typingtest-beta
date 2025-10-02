@@ -1,16 +1,22 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Users, Zap, Target, Trophy } from "lucide-react"
+import { getGlobalStats } from "@/lib/user-tracking"
 
 export function GlobalStats() {
-  // Mock global statistics - in a real app, this would come from a database
-  const globalStats = {
-    totalUsers: 15420,
-    totalRaces: 89340,
-    averageWpm: 67,
-    averageAccuracy: 94,
-  }
+  const [stats, setStats] = useState({
+    totalUsers: 0,
+    totalTests: 0,
+    averageWpm: 0,
+    averageAccuracy: 0,
+  })
+
+  useEffect(() => {
+    const globalStats = getGlobalStats()
+    setStats(globalStats)
+  }, [])
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -20,8 +26,12 @@ export function GlobalStats() {
           <Users className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold text-primary">{globalStats.totalUsers.toLocaleString()}</div>
-          <p className="text-xs text-muted-foreground">Active community members</p>
+          <div className="text-2xl font-bold text-primary">
+            {stats.totalUsers > 0 ? stats.totalUsers.toLocaleString() : "0"}
+          </div>
+          <p className="text-xs text-muted-foreground">
+            {stats.totalUsers > 0 ? "Active community members" : "Be the first to start!"}
+          </p>
         </CardContent>
       </Card>
 
@@ -31,8 +41,12 @@ export function GlobalStats() {
           <Trophy className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold text-blue-600">{globalStats.totalRaces.toLocaleString()}</div>
-          <p className="text-xs text-muted-foreground">Completed worldwide</p>
+          <div className="text-2xl font-bold text-blue-600">
+            {stats.totalTests > 0 ? stats.totalTests.toLocaleString() : "0"}
+          </div>
+          <p className="text-xs text-muted-foreground">
+            {stats.totalTests > 0 ? "Completed worldwide" : "Start the first race!"}
+          </p>
         </CardContent>
       </Card>
 
@@ -42,7 +56,7 @@ export function GlobalStats() {
           <Zap className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold text-green-600">{globalStats.averageWpm}</div>
+          <div className="text-2xl font-bold text-green-600">{stats.averageWpm > 0 ? stats.averageWpm : "—"}</div>
           <p className="text-xs text-muted-foreground">Words per minute</p>
         </CardContent>
       </Card>
@@ -53,7 +67,9 @@ export function GlobalStats() {
           <Target className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold text-purple-600">{globalStats.averageAccuracy}%</div>
+          <div className="text-2xl font-bold text-purple-600">
+            {stats.averageAccuracy > 0 ? `${stats.averageAccuracy}%` : "—"}
+          </div>
           <p className="text-xs text-muted-foreground">Average precision</p>
         </CardContent>
       </Card>
