@@ -1,10 +1,9 @@
 "use client"
 
 import type React from "react"
-
 import { useState, useEffect, useRef, useCallback } from "react"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { useLanguage } from "@/components/language-provider"
 import { useAuth } from "@/components/auth-provider"
@@ -30,9 +29,9 @@ const sampleTexts = {
   es: [
     "El veloz murciélago hindú comía feliz cardillo y kiwi. La cigüeña tocaba el saxofón detrás del palenque de paja.",
     "La tecnología ha revolucionado la forma en que nos comunicamos, trabajamos y vivimos. Desde teléfonos inteligentes hasta inteligencia artificial.",
-    "Aprender a escribir eficientemente es una habilidad valiosa en el mundo digital actual. La práctica hace al maestro.",
+    "Aprender a escribir eficientemente es una habilidad valiosa en el mundo digital actual. La práctica hace al maestro y la constancia es clave.",
     "El arte de la programación requiere paciencia, lógica y creatividad. Cada línea de código es un paso hacia la resolución de problemas complejos.",
-    "La naturaleza proporciona inspiración infinita con sus patrones intrincados, colores vibrantes y ecosistemas armoniosos.",
+    "La naturaleza proporciona inspiración infinita con sus patrones intrincados, colores vibrantes y ecosistemas armoniosos que sostienen toda la vida.",
   ],
 }
 
@@ -60,7 +59,7 @@ export function TypingTestStandard() {
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
   const startTimeRef = useRef<number>(0)
 
-  // Inicializar texto
+  // Inicializar texto al cargar o cambiar idioma
   useEffect(() => {
     const texts = sampleTexts[language]
     const randomText = texts[Math.floor(Math.random() * texts.length)]
@@ -111,12 +110,18 @@ export function TypingTestStandard() {
     })
   }, [userInput, currentText])
 
-  // Actualizar estadísticas cuando cambia la entrada
+  // Actualizar estadísticas cuando cambia la entrada del usuario
   useEffect(() => {
     if (isActive) {
       calculateStats()
     }
   }, [userInput, isActive, calculateStats])
+
+  useEffect(() => {
+    if (isActive && !isPaused) {
+      inputRef.current?.focus()
+    }
+  }, [isActive, isPaused])
 
   const startTest = () => {
     setIsActive(true)
@@ -125,7 +130,7 @@ export function TypingTestStandard() {
     setUserInput("")
     setCurrentIndex(0)
     startTimeRef.current = Date.now()
-    inputRef.current?.focus()
+    // El useEffect se encargará de enfocar el input
   }
 
   const pauseTest = () => {
@@ -147,7 +152,7 @@ export function TypingTestStandard() {
       timeElapsed: 0,
     })
 
-    // Generar nuevo texto
+    // Generar nuevo texto aleatorio
     const texts = sampleTexts[language]
     const randomText = texts[Math.floor(Math.random() * texts.length)]
     setCurrentText(randomText)
@@ -157,7 +162,7 @@ export function TypingTestStandard() {
     setIsActive(false)
     setIsPaused(false)
 
-    // Actualizar estadísticas del usuario si está conectado
+    // Actualizar estadísticas del usuario si está autenticado
     if (user) {
       const newBestWpm = Math.max(user.stats.bestWpm, stats.wpm)
       const newTotalRaces = user.stats.totalRaces + 1
@@ -170,7 +175,7 @@ export function TypingTestStandard() {
         accuracy: Math.max(user.stats.accuracy, stats.accuracy),
       })
 
-      // Verificar logros
+      // Verificar y desbloquear logros
       if (newTotalRaces === 1) {
         unlockAchievement("first_race")
       }
@@ -190,12 +195,22 @@ export function TypingTestStandard() {
     setUserInput(value)
     setCurrentIndex(value.length)
 
-    // Finalizar automáticamente si se completa el texto
+    // Finalizar automáticamente si se completa todo el texto
     if (value.length >= currentText.length) {
       finishTest()
     }
   }
 
+  const handleInputBlur = () => {
+    if (isActive && !isPaused) {
+      // Reenfocar automáticamente si la prueba está activa
+      setTimeout(() => {
+        inputRef.current?.focus()
+      }, 0)
+    }
+  }
+
+  // Determinar la clase CSS para cada carácter según su estado
   const getCharacterClass = (index: number) => {
     if (index < userInput.length) {
       return userInput[index] === currentText[index]
@@ -212,7 +227,7 @@ export function TypingTestStandard() {
 
   return (
     <div className="space-y-6">
-      {/* Selección de Modo */}
+      {/* Selección de Modo de Prueba */}
       <div className="flex items-center justify-between">
         <span className="font-medium">{t("test.selectMode")}</span>
         <div className="flex gap-2">
@@ -233,7 +248,7 @@ export function TypingTestStandard() {
         </div>
       </div>
 
-      {/* Visualización de Estadísticas */}
+      {/* Visualización de Estadísticas en Tiempo Real */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Card>
           <CardContent className="p-4 text-center">
@@ -272,10 +287,14 @@ export function TypingTestStandard() {
         <Progress value={progress} className="h-2" />
       </div>
 
-      {/* Área de Escritura */}
+      {/* Área Principal de Escritura */}
       <Card>
         <CardContent className="p-6">
-          <div className="mb-4 p-4 bg-muted/50 rounded-lg min-h-[120px] text-lg leading-relaxed font-mono">
+          {/* Texto a copiar con colores según aciertos/errores */}
+          <div
+            className="mb-4 p-4 bg-muted/50 rounded-lg min-h-[120px] text-lg leading-relaxed font-mono cursor-text select-none"
+            onClick={() => inputRef.current?.focus()}
+          >
             {currentText.split("").map((char, index) => (
               <span key={index} className={getCharacterClass(index)}>
                 {char}
@@ -288,14 +307,19 @@ export function TypingTestStandard() {
             type="text"
             value={userInput}
             onChange={handleInputChange}
-            className="w-full p-3 border rounded-lg bg-background text-lg font-mono focus:outline-none focus:ring-2 focus:ring-primary"
+            onBlur={handleInputBlur}
+            className="w-full p-3 border rounded-lg bg-background text-lg font-mono focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed"
             placeholder={isActive ? t("test.startTyping") : t("test.clickStart")}
             disabled={!isActive || isPaused}
+            autoComplete="off"
+            autoCorrect="off"
+            autoCapitalize="off"
+            spellCheck="false"
           />
         </CardContent>
       </Card>
 
-      {/* Controles */}
+      {/* Controles de la Prueba */}
       <div className="flex justify-center gap-4">
         {!isActive ? (
           <Button onClick={startTest} size="lg" className="px-8">
@@ -315,34 +339,33 @@ export function TypingTestStandard() {
         </Button>
       </div>
 
-      {/* Modal/Resultados de Prueba Completada */}
+      {/* Resultados de Prueba Completada */}
       {!isActive && stats.timeElapsed > 0 && (
-        <Card className="border-primary">
-          <CardHeader>
-            <CardTitle className="text-center text-green-600">{t("test.testComplete")}</CardTitle>
-          </CardHeader>
-          <CardContent className="text-center space-y-4">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div>
+        <Card className="border-primary border-2">
+          <CardContent className="p-6">
+            <h3 className="text-center text-2xl font-bold text-green-600 mb-6">{t("test.testComplete")}</h3>
+
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+              <div className="text-center">
                 <div className="text-3xl font-bold text-primary">{stats.wpm}</div>
                 <div className="text-sm text-muted-foreground">{t("test.wpm")}</div>
               </div>
-              <div>
+              <div className="text-center">
                 <div className="text-3xl font-bold text-green-600">{stats.accuracy}%</div>
                 <div className="text-sm text-muted-foreground">{t("test.accuracy")}</div>
               </div>
-              <div>
+              <div className="text-center">
                 <div className="text-3xl font-bold text-blue-600">{stats.correctChars}</div>
                 <div className="text-sm text-muted-foreground">{t("test.correct")}</div>
               </div>
-              <div>
+              <div className="text-center">
                 <div className="text-3xl font-bold text-red-600">{stats.errors}</div>
                 <div className="text-sm text-muted-foreground">{t("test.errors")}</div>
               </div>
             </div>
 
             {user && (
-              <div className="pt-4 border-t">
+              <div className="pt-4 border-t text-center">
                 <p className="text-sm text-muted-foreground">
                   {t("test.personalBest")}: {user.stats.bestWpm} {t("test.wpm")} | {t("test.average")}:{" "}
                   {user.stats.averageWpm} {t("test.wpm")}

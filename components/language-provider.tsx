@@ -54,6 +54,24 @@ const translations = {
     "mode.5min": "5 Minutes",
     "mode.ghost": "Ghost Race",
 
+    // Ghost Mode
+    "ghost.chooseOpponent": "Choose Your Ghost Opponent",
+    "ghost.selected": "Selected",
+    "ghost.raceDuration": "Race Duration",
+    "ghost.you": "You",
+    "ghost.start": "Start",
+    "ghost.finish": "Finish",
+    "ghost.remaining": "remaining",
+    "ghost.selectGhost": "Select a ghost and click start to begin",
+    "ghost.startRace": "Start Ghost Race",
+    "ghost.victory": "Victory!",
+    "ghost.ghostWins": "Ghost Wins!",
+    "ghost.yourPerformance": "Your Performance",
+    "ghost.congratulations": "Congratulations! You beat",
+    "ghost.by": "by",
+    "ghost.wonBy": "won by",
+    "ghost.tryAgain": "Try again!",
+
     // Auth
     "auth.login": "Sign In with Google",
     "auth.logout": "Sign Out",
@@ -165,6 +183,24 @@ const translations = {
     "mode.3min": "3 Minutos",
     "mode.5min": "5 Minutos",
     "mode.ghost": "Carrera Fantasma",
+
+    // Modo Fantasma
+    "ghost.chooseOpponent": "Elige tu Oponente Fantasma",
+    "ghost.selected": "Seleccionado",
+    "ghost.raceDuration": "Duración de la Carrera",
+    "ghost.you": "Tú",
+    "ghost.start": "Inicio",
+    "ghost.finish": "Final",
+    "ghost.remaining": "restantes",
+    "ghost.selectGhost": "Selecciona un fantasma y haz clic en iniciar para comenzar",
+    "ghost.startRace": "Iniciar Carrera Fantasma",
+    "ghost.victory": "¡Victoria!",
+    "ghost.ghostWins": "¡El Fantasma Gana!",
+    "ghost.yourPerformance": "Tu Rendimiento",
+    "ghost.congratulations": "¡Felicitaciones! Venciste a",
+    "ghost.by": "por",
+    "ghost.wonBy": "ganó por",
+    "ghost.tryAgain": "¡Inténtalo de nuevo!",
 
     // Autenticación
     "auth.login": "Iniciar Sesión con Google",

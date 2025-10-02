@@ -17,7 +17,7 @@ const geistMono = Geist_Mono({
 })
 
 export const metadata = {
-  title: "TypeRace Pro - Domina tu Velocidad de Escritura",
+  title: "ChronoType - Domina tu Velocidad de Escritura",
   description:
     "Compite, mejora y domina tus habilidades de mecanografía con carreras en tiempo real, logros y clasificaciones globales.",
   generator: "v0.app",
