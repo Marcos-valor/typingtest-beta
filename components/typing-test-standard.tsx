@@ -8,6 +8,7 @@ import { Progress } from "@/components/ui/progress"
 import { useLanguage } from "@/components/language-provider"
 import { useAuth } from "@/components/auth-provider"
 import { RotateCcw, Play, Pause } from "lucide-react"
+import { saveTestResult, getUserStats } from "@/lib/user-tracking"
 
 interface TypingStats {
   wpm: number
@@ -54,6 +55,7 @@ export function TypingTestStandard() {
     totalChars: 0,
     timeElapsed: 0,
   })
+  const [userStats, setUserStats] = useState(getUserStats())
 
   const inputRef = useRef<HTMLInputElement>(null)
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
@@ -130,7 +132,6 @@ export function TypingTestStandard() {
     setUserInput("")
     setCurrentIndex(0)
     startTimeRef.current = Date.now()
-    // El useEffect se encargará de enfocar el input
   }
 
   const pauseTest = () => {
@@ -162,7 +163,19 @@ export function TypingTestStandard() {
     setIsActive(false)
     setIsPaused(false)
 
-    // Actualizar estadísticas del usuario si está autenticado
+    const modeKey = `${mode}min` as "1min" | "3min" | "5min"
+    saveTestResult({
+      wpm: stats.wpm,
+      accuracy: stats.accuracy,
+      errors: stats.errors,
+      duration: mode * 60,
+      mode: modeKey,
+      language: language,
+    })
+
+    setUserStats(getUserStats())
+
+    // Mantener compatibilidad con el sistema de autenticación existente
     if (user) {
       const newBestWpm = Math.max(user.stats.bestWpm, stats.wpm)
       const newTotalRaces = user.stats.totalRaces + 1
@@ -311,6 +324,7 @@ export function TypingTestStandard() {
             className="w-full p-3 border rounded-lg bg-background text-lg font-mono focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed"
             placeholder={isActive ? t("test.startTyping") : t("test.clickStart")}
             disabled={!isActive || isPaused}
+            autoFocus
             autoComplete="off"
             autoCorrect="off"
             autoCapitalize="off"
@@ -364,14 +378,12 @@ export function TypingTestStandard() {
               </div>
             </div>
 
-            {user && (
-              <div className="pt-4 border-t text-center">
-                <p className="text-sm text-muted-foreground">
-                  {t("test.personalBest")}: {user.stats.bestWpm} {t("test.wpm")} | {t("test.average")}:{" "}
-                  {user.stats.averageWpm} {t("test.wpm")}
-                </p>
-              </div>
-            )}
+            <div className="pt-4 border-t text-center">
+              <p className="text-sm text-muted-foreground">
+                {t("test.personalBest")}: {userStats.bestWpm} {t("test.wpm")} | {t("test.average")}:{" "}
+                {userStats.averageWpm} {t("test.wpm")}
+              </p>
+            </div>
           </CardContent>
         </Card>
       )}
