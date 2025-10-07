@@ -19,8 +19,7 @@ const geistMono = Geist_Mono({
 export const metadata = {
   title: "ChronoType - Domina tu Velocidad de Escritura",
   description:
-    "Compite, mejora y domina tus habilidades de mecanografía con carreras en tiempo real, logros y clasificaciones globales.",
-  generator: "v0.app",
+    "Compite, mejora y domina tus habilidades de mecanografía con carreras en tiempo real, logros y clasificaciones globales."
 }
 
 export default function RootLayout({
