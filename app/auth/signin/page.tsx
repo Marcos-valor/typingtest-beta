@@ -34,9 +34,6 @@ export default function SignInPage() {
         <div className="text-center">
           <Link href="/" className="inline-flex items-center space-x-2 mb-6">
             <Keyboard className="h-8 w-8 text-primary" />
-            <span className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-              TypeRace Pro
-            </span>
           </Link>
         </div>
 
