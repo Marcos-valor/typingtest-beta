@@ -2,10 +2,21 @@
 // Utiliza un identificador único del navegador (fingerprint) para rastrear usuarios
 
 /**
+ * Verifica si estamos en el cliente (navegador)
+ */
+function isClient(): boolean {
+  return typeof window !== "undefined" && typeof localStorage !== "undefined"
+}
+
+/**
  * Genera un identificador único basado en características del navegador
  * Este ID persiste entre sesiones y permite rastrear usuarios sin login
  */
 export function generateBrowserFingerprint(): string {
+  if (!isClient()) {
+    return "server_render"
+  }
+
   // Verificar si ya existe un ID guardado
   const existingId = localStorage.getItem("browser_fingerprint")
   if (existingId) {
@@ -76,6 +87,10 @@ export interface TestResult {
  * Guarda un resultado de prueba en localStorage
  */
 export function saveTestResult(result: Omit<TestResult, "id" | "userId" | "timestamp">): TestResult {
+  if (!isClient()) {
+    throw new Error("saveTestResult solo puede ejecutarse en el cliente")
+  }
+
   const userId = getUserId()
   const testResult: TestResult = {
     ...result,
@@ -101,6 +116,10 @@ export function saveTestResult(result: Omit<TestResult, "id" | "userId" | "times
  * Obtiene todos los resultados de pruebas guardados
  */
 export function getTestResults(): TestResult[] {
+  if (!isClient()) {
+    return []
+  }
+
   const stored = localStorage.getItem("test_results")
   if (!stored) return []
 
@@ -134,6 +153,10 @@ export interface GlobalStats {
  * Actualiza las estadísticas globales con un nuevo resultado
  */
 function updateGlobalStats(newResult: TestResult): void {
+  if (!isClient()) {
+    return
+  }
+
   const stats = getGlobalStats()
 
   // Contar usuarios únicos
@@ -160,6 +183,16 @@ function updateGlobalStats(newResult: TestResult): void {
  * Obtiene las estadísticas globales
  */
 export function getGlobalStats(): GlobalStats {
+  if (!isClient()) {
+    return {
+      totalUsers: 0,
+      totalTests: 0,
+      averageWpm: 0,
+      averageAccuracy: 0,
+      lastUpdated: Date.now(),
+    }
+  }
+
   const stored = localStorage.getItem("global_stats")
   if (!stored) {
     return {
@@ -196,6 +229,10 @@ export interface LeaderboardEntry {
 }
 
 export function getLeaderboard(mode: "1min" | "3min" | "5min", limit = 10): LeaderboardEntry[] {
+  if (!isClient()) {
+    return []
+  }
+
   const allResults = getTestResults().filter((r) => r.mode === mode)
 
   // Agrupar por usuario y obtener su mejor resultado
