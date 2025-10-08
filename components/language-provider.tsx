@@ -1,19 +1,43 @@
 "use client"
 
+/**
+ * PROVEEDOR DE IDIOMAS (LANGUAGE PROVIDER)
+ *
+ * Este archivo gestiona el sistema de internacionalización (i18n) de la aplicación.
+ * Permite cambiar entre inglés y español dinámicamente y persiste la preferencia del usuario.
+ */
+
 import type React from "react"
 import { createContext, useContext, useState, useEffect } from "react"
 
+// ============================================================================
+// TIPOS Y DEFINICIONES
+// ============================================================================
+
+/** Idiomas soportados por la aplicación */
 type Language = "en" | "es"
 
+/** Interface del contexto de idioma */
 interface LanguageContextType {
   language: Language
   setLanguage: (lang: Language) => void
   t: (key: string) => string
 }
 
+// ============================================================================
+// DICCIONARIO DE TRADUCCIONES
+// ============================================================================
+
+/**
+ * Objeto que contiene todas las traducciones de la aplicación
+ * Estructura: translations[idioma][clave] = texto traducido
+ */
 const translations = {
+  // ---------------------------------------------------------------------------
+  // INGLÉS (EN)
+  // ---------------------------------------------------------------------------
   en: {
-    // Navigation
+    // === NAVEGACIÓN ===
     "nav.home": "Home",
     "nav.leaderboard": "Leaderboard",
     "nav.profile": "Profile",
@@ -21,12 +45,12 @@ const translations = {
     "nav.settings": "Settings",
     "nav.stats": "Statistics",
 
-    // Home Page
+    // === PÁGINA DE INICIO ===
     "home.title": "Master Your Typing Speed",
     "home.subtitle":
       "Compete with players worldwide, unlock achievements, and race against ghosts in the ultimate typing experience.",
 
-    // Typing Test
+    // === PRUEBA DE ESCRITURA ===
     "test.title": "Typing Challenge",
     "test.standardTest": "Standard Test",
     "test.selectMode": "Select Mode",
@@ -48,13 +72,13 @@ const translations = {
     "test.characters": "Characters",
     "test.errors": "Errors",
 
-    // Modes
+    // === MODOS DE JUEGO ===
     "mode.1min": "1 Minute",
     "mode.3min": "3 Minutes",
     "mode.5min": "5 Minutes",
     "mode.ghost": "Ghost Race",
 
-    // Ghost Mode
+    // === MODO FANTASMA ===
     "ghost.chooseOpponent": "Choose Your Ghost Opponent",
     "ghost.selected": "Selected",
     "ghost.raceDuration": "Race Duration",
@@ -72,7 +96,7 @@ const translations = {
     "ghost.wonBy": "won by",
     "ghost.tryAgain": "Try again!",
 
-    // Auth
+    // === AUTENTICACIÓN ===
     "auth.login": "Sign In with Google",
     "auth.logout": "Sign Out",
     "auth.welcome": "Welcome back",
@@ -85,7 +109,7 @@ const translations = {
     "auth.termsAgreement": "By signing in, you agree to our Terms of Service and Privacy Policy",
     "auth.comingSoon": "Coming soon...",
 
-    // Stats Overview
+    // === RESUMEN DE ESTADÍSTICAS ===
     "stats.signInPrompt": "Sign in to track your progress and compete with others!",
     "stats.bestWpm": "Best WPM",
     "stats.personalRecord": "Personal record",
@@ -97,20 +121,20 @@ const translations = {
     "stats.completed": "Completed",
     "stats.recentAchievements": "Recent Achievements",
 
-    // Achievements
+    // === LOGROS ===
     "achievement.unlocked": "Achievement Unlocked!",
     "achievement.first_race": "First Race",
     "achievement.speed_demon": "Speed Demon",
     "achievement.accuracy_master": "Accuracy Master",
 
-    // Settings
+    // === CONFIGURACIÓN ===
     "settings.theme": "Theme",
     "settings.language": "Language",
     "settings.sound": "Sound Effects",
     "settings.keyboard": "Keyboard Style",
     "settings.background": "Background",
 
-    // Statistics
+    // === ESTADÍSTICAS DETALLADAS ===
     statistics: "Statistics",
     trackYourProgress: "Track your typing progress and performance",
     averageWPM: "Average WPM",
@@ -165,6 +189,10 @@ const translations = {
     "stats.noTestsYet": "No tests completed yet",
     "stats.startTyping": "Start typing to see your statistics!",
   },
+
+  // ---------------------------------------------------------------------------
+  // ESPAÑOL (ES)
+  // ---------------------------------------------------------------------------
   es: {
     // Navegación
     "nav.home": "Inicio",
@@ -174,12 +202,12 @@ const translations = {
     "nav.settings": "Configuración",
     "nav.stats": "Estadísticas",
 
-    // Página de Inicio
+    // === PÁGINA DE INICIO ===
     "home.title": "Domina tu Velocidad de Escritura",
     "home.subtitle":
       "Compite con jugadores de todo el mundo, desbloquea logros y compite contra fantasmas en la experiencia de escritura definitiva.",
 
-    // Prueba de Escritura
+    // === PRUEBA DE ESCRITURA ===
     "test.title": "Desafío de Escritura",
     "test.standardTest": "Prueba Estándar",
     "test.selectMode": "Seleccionar Modo",
@@ -201,13 +229,13 @@ const translations = {
     "test.characters": "Caracteres",
     "test.errors": "Errores",
 
-    // Modos
+    // === MODOS DE JUEGO ===
     "mode.1min": "1 Minuto",
     "mode.3min": "3 Minutos",
     "mode.5min": "5 Minutos",
     "mode.ghost": "Carrera Fantasma",
 
-    // Modo Fantasma
+    // === MODO FANTASMA ===
     "ghost.chooseOpponent": "Elige tu Oponente Fantasma",
     "ghost.selected": "Seleccionado",
     "ghost.raceDuration": "Duración de la Carrera",
@@ -225,7 +253,7 @@ const translations = {
     "ghost.wonBy": "ganó por",
     "ghost.tryAgain": "¡Inténtalo de nuevo!",
 
-    // Autenticación
+    // === AUTENTICACIÓN ===
     "auth.login": "Iniciar Sesión con Google",
     "auth.logout": "Cerrar Sesión",
     "auth.welcome": "Bienvenido de nuevo",
@@ -238,7 +266,7 @@ const translations = {
     "auth.termsAgreement": "Al iniciar sesión, aceptas nuestros Términos de Servicio y Política de Privacidad",
     "auth.comingSoon": "Próximamente...",
 
-    // Resumen de Estadísticas
+    // === RESUMEN DE ESTADÍSTICAS ===
     "stats.signInPrompt": "¡Inicia sesión para rastrear tu progreso y competir con otros!",
     "stats.bestWpm": "Mejor PPM",
     "stats.personalRecord": "Récord personal",
@@ -250,20 +278,20 @@ const translations = {
     "stats.completed": "Completadas",
     "stats.recentAchievements": "Logros Recientes",
 
-    // Logros
+    // === LOGROS ===
     "achievement.unlocked": "¡Logro Desbloqueado!",
     "achievement.first_race": "Primera Carrera",
     "achievement.speed_demon": "Demonio de la Velocidad",
     "achievement.accuracy_master": "Maestro de la Precisión",
 
-    // Configuración
+    // === CONFIGURACIÓN ===
     "settings.theme": "Tema",
     "settings.language": "Idioma",
     "settings.sound": "Efectos de Sonido",
     "settings.keyboard": "Estilo de Teclado",
     "settings.background": "Fondo",
 
-    // Estadísticas
+    // === ESTADÍSTICAS DETALLADAS ===
     statistics: "Estadísticas",
     trackYourProgress: "Rastrea tu progreso y rendimiento de mecanografía",
     averageWPM: "PPM Promedio",
@@ -320,24 +348,59 @@ const translations = {
   },
 }
 
+// ============================================================================
+// CONTEXTO Y PROVEEDOR
+// ============================================================================
+
+/**
+ * Contexto de React para compartir el estado del idioma en toda la aplicación
+ */
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined)
 
+/**
+ * LanguageProvider - Componente proveedor de idioma
+ *
+ * Este componente envuelve la aplicación y proporciona:
+ * - Estado del idioma actual
+ * - Función para cambiar el idioma
+ * - Función de traducción (t)
+ * - Persistencia del idioma en localStorage
+ *
+ * @param children - Componentes hijos que tendrán acceso al contexto de idioma
+ */
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
+  // Estado del idioma actual (por defecto español)
   const [language, setLanguage] = useState<Language>("es")
 
+  /**
+   * Efecto que se ejecuta al montar el componente
+   * Recupera el idioma guardado en localStorage si existe
+   */
   useEffect(() => {
-    // Cargar idioma guardado del localStorage
     const saved = localStorage.getItem("language") as Language
     if (saved && (saved === "en" || saved === "es")) {
       setLanguage(saved)
     }
   }, [])
 
+  /**
+   * Función para cambiar el idioma
+   * Actualiza el estado y guarda la preferencia en localStorage
+   *
+   * @param lang - Nuevo idioma a establecer
+   */
   const handleSetLanguage = (lang: Language) => {
     setLanguage(lang)
     localStorage.setItem("language", lang)
   }
 
+  /**
+   * Función de traducción (translate)
+   * Busca una clave en el diccionario de traducciones
+   *
+   * @param key - Clave de traducción (ej: "nav.home")
+   * @returns Texto traducido o la clave si no se encuentra
+   */
   const t = (key: string): string => {
     return translations[language][key as keyof (typeof translations)[typeof language]] || key
   }
@@ -349,6 +412,22 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   )
 }
 
+// ============================================================================
+// HOOK PERSONALIZADO
+// ============================================================================
+
+/**
+ * useLanguage - Hook para acceder al contexto de idioma
+ *
+ * Uso:
+ * ```tsx
+ * const { language, setLanguage, t } = useLanguage()
+ * return <h1>{t("nav.home")}</h1>
+ * ```
+ *
+ * @throws Error si se usa fuera del LanguageProvider
+ * @returns Objeto con language, setLanguage y función t
+ */
 export function useLanguage() {
   const context = useContext(LanguageContext)
   if (context === undefined) {

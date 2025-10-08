@@ -1,5 +1,21 @@
 "use client"
 
+/**
+ * ============================================================================
+ * COMPONENTE DE PESTAÑAS DE CLASIFICACIÓN (LEADERBOARD TABS)
+ * ============================================================================
+ *
+ * Muestra las clasificaciones (rankings) separadas por modo de juego:
+ * - Liga Sprint (1 minuto)
+ * - Liga de Resistencia (3 minutos)
+ * - Liga Maratón (5 minutos)
+ *
+ * Para cada liga muestra:
+ * - Top 10 jugadores ordenados por WPM
+ * - Iconos especiales para los primeros 3 lugares
+ * - Resalta la entrada del usuario actual
+ */
+
 import { useState, useEffect } from "react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -12,6 +28,8 @@ import { getLeaderboard, getUserId, type LeaderboardEntry } from "@/lib/user-tra
 export function LeaderboardTabs() {
   const { t } = useLanguage()
   const [activeTab, setActiveTab] = useState<"1min" | "3min" | "5min">("1min")
+
+  // Estado que contiene las clasificaciones de cada modo
   const [leaderboards, setLeaderboards] = useState<{
     "1min": LeaderboardEntry[]
     "3min": LeaderboardEntry[]
@@ -21,10 +39,14 @@ export function LeaderboardTabs() {
     "3min": [],
     "5min": [],
   })
+
   const currentUserId = getUserId()
 
+  /**
+   * Efecto que se ejecuta al montar el componente
+   * Carga las clasificaciones desde localStorage
+   */
   useEffect(() => {
-    // Cargar leaderboards reales desde localStorage
     setLeaderboards({
       "1min": getLeaderboard("1min", 10),
       "3min": getLeaderboard("3min", 10),
@@ -32,29 +54,39 @@ export function LeaderboardTabs() {
     })
   }, [])
 
+  /**
+   * Obtiene el icono apropiado según el puesto en la clasificación
+   * @param rank - Posición del jugador (1, 2, 3, etc.)
+   * @returns Componente de icono con color correspondiente
+   */
   const getRankIcon = (rank: number) => {
     switch (rank) {
       case 1:
-        return <Crown className="h-5 w-5 text-yellow-500" />
+        return <Crown className="h-5 w-5 text-yellow-500" /> // Corona dorada para 1er lugar
       case 2:
-        return <Trophy className="h-5 w-5 text-gray-400" />
+        return <Trophy className="h-5 w-5 text-gray-400" /> // Trofeo plateado para 2do lugar
       case 3:
-        return <Medal className="h-5 w-5 text-amber-600" />
+        return <Medal className="h-5 w-5 text-amber-600" /> // Medalla bronce para 3er lugar
       default:
-        return <Award className="h-4 w-4 text-muted-foreground" />
+        return <Award className="h-4 w-4 text-muted-foreground" /> // Award genérico para el resto
     }
   }
 
+  /**
+   * Obtiene la variante del badge según el puesto
+   * @param rank - Posición del jugador
+   * @returns Variante del badge (afecta el color y estilo)
+   */
   const getRankBadgeVariant = (rank: number) => {
     switch (rank) {
       case 1:
-        return "default"
+        return "default" // Estilo destacado para el campeón
       case 2:
-        return "secondary"
+        return "secondary" // Estilo secundario para subcampeón
       case 3:
-        return "outline"
+        return "outline" // Estilo con borde para tercer lugar
       default:
-        return "outline"
+        return "outline" // Estilo básico para el resto
     }
   }
 

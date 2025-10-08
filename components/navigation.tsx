@@ -1,4 +1,20 @@
 "use client"
+
+/**
+ * ============================================================================
+ * COMPONENTE DE NAVEGACIÓN (NAVIGATION)
+ * ============================================================================
+ *
+ * Barra de navegación principal de la aplicación que incluye:
+ * - Logo y enlaces principales
+ * - Selector de tema (claro/oscuro)
+ * - Selector de idioma (español/inglés)
+ * - Menú de usuario con avatar y opciones
+ * - Botón de inicio de sesión
+ *
+ * Es sticky (se queda fijo al hacer scroll) y tiene efecto de blur.
+ */
+
 import Link from "next/link"
 import { useTheme } from "next-themes"
 import { Button } from "@/components/ui/button"
@@ -16,11 +32,16 @@ import { Moon, Sun, Globe, Trophy, User, Settings, LogOut, Keyboard, Loader2, Ba
 import { useToast } from "@/hooks/use-toast"
 
 export function Navigation() {
+  // Hooks para gestionar tema, idioma, autenticación y notificaciones
   const { theme, setTheme } = useTheme()
   const { language, setLanguage, t } = useLanguage()
   const { user, login, logout, isLoading } = useAuth()
   const { toast } = useToast()
 
+  /**
+   * Maneja el intento de inicio de sesión con Google
+   * Por ahora muestra un toast indicando que está próximamente
+   */
   const handleGoogleSignIn = () => {
     toast({
       title: t("auth.comingSoon"),
@@ -32,10 +53,12 @@ export function Navigation() {
   return (
     <nav className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-50">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+        {/* Logo - Icono de teclado que lleva al inicio */}
         <Link href="/" className="flex items-center space-x-2">
           <Keyboard className="h-8 w-8 text-primary" />
         </Link>
 
+        {/* Enlaces de navegación - Solo visibles en desktop (md y superior) */}
         <div className="hidden md:flex items-center space-x-6">
           <Link href="/" className="text-sm font-medium hover:text-primary transition-colors">
             {t("nav.home")}
@@ -43,6 +66,7 @@ export function Navigation() {
           <Link href="/leaderboard" className="text-sm font-medium hover:text-primary transition-colors">
             {t("nav.leaderboard")}
           </Link>
+          {/* Enlaces adicionales solo para usuarios autenticados */}
           {user && (
             <>
               <Link href="/stats" className="text-sm font-medium hover:text-primary transition-colors">
@@ -58,14 +82,15 @@ export function Navigation() {
           )}
         </div>
 
+        {/* Sección de controles y usuario */}
         <div className="flex items-center space-x-2">
-          {/* Cambio de Tema */}
+          {/* Botón de cambio de tema (claro/oscuro) */}
           <Button variant="ghost" size="sm" onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>
             <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
             <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
           </Button>
 
-          {/* Cambio de Idioma */}
+          {/* Menú desplegable de cambio de idioma */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="sm">
@@ -78,12 +103,14 @@ export function Navigation() {
             </DropdownMenuContent>
           </DropdownMenu>
 
-          {/* Menú de Usuario */}
+          {/* Menú de usuario o botón de inicio de sesión */}
           {isLoading ? (
+            // Indicador de carga mientras se verifica la autenticación
             <Button variant="ghost" size="sm" disabled>
               <Loader2 className="h-4 w-4 animate-spin" />
             </Button>
           ) : user ? (
+            // Menú desplegable de usuario autenticado
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-8 w-8 rounded-full">
